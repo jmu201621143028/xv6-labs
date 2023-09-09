@@ -311,6 +311,7 @@ fork(void)
   safestrcpy(np->name, p->name, sizeof(p->name));
 
   pid = np->pid;
+  np->trace_id = p->trace_id;
 
   release(&np->lock);
 
@@ -680,4 +681,14 @@ procdump(void)
     printf("%d %s %s", p->pid, state, p->name);
     printf("\n");
   }
+}
+
+
+uint64 kproc() {
+  uint64 ret = 0;
+  for(struct proc *p = proc; p < &proc[NPROC]; p++) {
+    if(p->state != UNUSED)
+      ret += 1;
+  }
+  return ret;
 }

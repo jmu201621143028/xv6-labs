@@ -42,11 +42,11 @@ void
 testmem() {
   struct sysinfo info;
   uint64 n = countfree();
-  
+  printf("count free\n");
   sinfo(&info);
 
   if (info.freemem!= n) {
-    printf("FAIL: free mem %d (bytes) instead of %d\n", info.freemem, n);
+    printf("FAIL1: free mem %d (bytes) instead of %d\n", info.freemem, n);
     exit(1);
   }
   
@@ -58,7 +58,7 @@ testmem() {
   sinfo(&info);
     
   if (info.freemem != n-PGSIZE) {
-    printf("FAIL: free mem %d (bytes) instead of %d\n", n-PGSIZE, info.freemem);
+    printf("FAIL2: free mem %d (bytes) instead of %d\n", n-PGSIZE, info.freemem);
     exit(1);
   }
   
@@ -70,7 +70,7 @@ testmem() {
   sinfo(&info);
     
   if (info.freemem != n) {
-    printf("FAIL: free mem %d (bytes) instead of %d\n", n, info.freemem);
+    printf("FAIL3: free mem %d (bytes) instead of %d\n", n, info.freemem);
     exit(1);
   }
 }

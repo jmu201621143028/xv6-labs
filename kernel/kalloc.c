@@ -27,6 +27,8 @@ void
 kinit()
 {
   initlock(&kmem.lock, "kmem");
+  // printf("end = %p, PHYSTOP = %p\n", end, PHYSTOP);
+  // printf("kmem freelist %p\n", kmem.freelist);
   freerange(end, (void*)PHYSTOP);
 }
 
@@ -34,9 +36,12 @@ void
 freerange(void *pa_start, void *pa_end)
 {
   char *p;
+  // printf("pa start %p, pa end %p\n", pa_start, pa_end);
   p = (char*)PGROUNDUP((uint64)pa_start);
-  for(; p + PGSIZE <= (char*)pa_end; p += PGSIZE)
+  for(; p + PGSIZE <= (char*)pa_end; p += PGSIZE) {
     kfree(p);
+  }
+  // printf("kmem freelist %p\n", kmem.freelist);
 }
 
 // Free the page of physical memory pointed at by pa,
@@ -79,4 +84,19 @@ kalloc(void)
   if(r)
     memset((char*)r, 5, PGSIZE); // fill with junk
   return (void*)r;
+}
+
+uint64 kfreemem() {
+  uint64 ret = 0;
+  acquire(&kmem.lock);
+  printf("kmem freelist = %p\n", kmem.freelist);
+  // struct run *ls = kmem.freelist;
+  // while (ls) {
+  //   ls = ls->next;
+  //   // printf("ls = %p\n", ls);
+  //   ret += 4096;
+  // }
+  ret = kmem.freelist == 0 ? 0 : PHYSTOP - (uint64)kmem.freelist - 0xe9000;
+  release(&kmem.lock);
+  return ret;
 }
