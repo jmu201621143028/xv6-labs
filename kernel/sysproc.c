@@ -42,7 +42,9 @@ sys_sbrk(void)
   int n;
 
   argint(0, &n);
+  // printf("sys_sbrk: %d\n", n);
   addr = myproc()->sz;
+  // printf("myproc()->sz %p\n", addr);
   if(growproc(n) < 0)
     return -1;
   return addr;
@@ -75,6 +77,29 @@ int
 sys_pgaccess(void)
 {
   // lab pgtbl: your code here.
+  // argaddr();
+  struct proc* p = myproc();
+  uint64 va_begin, va_bitmask;
+  int num;
+  argaddr(0, &va_begin);
+  argint(1, &num);
+  argaddr(2, &va_bitmask);
+  uint32 mask = 0;
+  // printf("num = %d\n", num);
+  uint64 complement = PTE_A;
+  complement = ~complement;
+  // printf("complement = %p\n", complement);
+  for (int i = 0; i < num; ++i) {
+    uint64 va = va_begin + i * PGSIZE;
+    // printf("va = %p\n", va);
+    pte_t* pte = walk(p->pagetable, va, 0);
+    if (PTE_FLAGS(*pte) & PTE_A) {
+      mask |= (1 << i);
+      printf("sys_pgaccess i = %d\n", i);
+      *pte &= complement; // equal *pte &= 0xffffffffffffffbf;
+    }
+  }
+  copyout(p->pagetable, va_bitmask, (char*)&mask, sizeof(mask));
   return 0;
 }
 #endif
